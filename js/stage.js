@@ -21,9 +21,10 @@ stage.addChild(background);
 
 //Ground
 var groundTexture = PIXI.Texture.fromImage("images/ground.png");
-var ground = new PIXI.TilingSprite(groundTexture, stageWidth, 130)
+var floorHeight = 130;
+var ground = new PIXI.TilingSprite(groundTexture, stageWidth, floorHeight)
 ground.position.x = 0;
-ground.position.y = stageHeight-130;
+ground.position.y = stageHeight-floorHeight;
 ground.tilePosition.x = 0;
 ground.tilePosition.y = 0;
 stage.addChild(ground);
@@ -59,14 +60,18 @@ function v(x, y) {
 //Game params
 var gravity = v(0,1);
 var scrollSpeed = 5; //Pixels per frame (I think)
+var floorPosition = stageHeight - floorHeight;
 
+bird.acceleration = gravity;
 
 function animate()
 {
     background.tilePosition.x -= 0.5;
     ground.tilePosition.x -= scrollSpeed;
 
-    accelerate(bird, gravity);
+    checkCollisions(bird);
+
+    accelerate(bird);
 
     requestAnimFrame(animate);
 
@@ -74,14 +79,21 @@ function animate()
     renderer.render(stage);
 }
 
-function accelerate(object, acceleration) {
+function accelerate(object) {
     if (!object.velocity) {
         object.velocity = v(0,0);
     }
-    //Update the velocity according to this acceleration
-    object.velocity.add(acceleration);
+    object.velocity.add(object.acceleration);
     object.position.x += object.velocity.x;
     object.position.y += object.velocity.y;
+}
+
+function checkCollisions(bird) {
+    if (bird.position.y > floorPosition - (bird.texture.height * 0.5)) {
+        //Stop the bird falling
+        bird.acceleration = v(0,0);
+        bird.velocity = v(0,0);
+    }
 }
 
 requestAnimFrame(animate);
