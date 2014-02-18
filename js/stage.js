@@ -69,9 +69,9 @@ function animate()
     background.tilePosition.x -= 0.5;
     ground.tilePosition.x -= scrollSpeed;
 
-    checkCollisions(bird);
-
     accelerate(bird);
+
+    checkCollisions(bird);
 
     requestAnimFrame(animate);
 
