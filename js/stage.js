@@ -98,4 +98,18 @@ function checkCollisions(bird) {
     }
 }
 
+function click() {
+    bird.velocity.y = -20;
+}
+
+document.addEventListener('keydown', function(event) {
+    if(event.keyCode == 32) {
+        click();
+    }
+});
+
+document.addEventListener('mousedown', function(event) {
+    click();
+});
+
 requestAnimFrame(animate);
