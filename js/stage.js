@@ -89,10 +89,12 @@ function accelerate(object) {
 }
 
 function checkCollisions(bird) {
-    if (bird.position.y > floorPosition - (bird.texture.height * 0.5)) {
+    var maxYPos = floorPosition - (bird.texture.height * 0.5);
+    if (bird.position.y > maxYPos) {
         //Stop the bird falling
-        bird.acceleration = v(0,0);
-        bird.velocity = v(0,0);
+        //bird.acceleration = v(0,0);
+        bird.position.y = maxYPos;
+        bird.velocity.y = -Math.abs(bird.velocity.y) * 0.7;
     }
 }
 
