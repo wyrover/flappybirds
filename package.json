@@ -1,0 +1,20 @@
+{
+  "name": "flappybirds",
+  "version": "0.0.1",
+  "description": "flappy birds, Episode 2: The attack of the clones",
+  "authors": ["Alex Spurling <@spuz> (http://github.com/alexspurling)", "Cristian Carlesso <@kentaromiura> (http://github.com/kentaromiura)"],
+  "main": "./index.html",
+  "repository": {
+    "url": "https://github.com/alexspurling/flappybirds.git"
+  },
+  "dependencies": {
+    
+  },
+  "devDependencies": {
+    "polpetta": "*"
+  },
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}

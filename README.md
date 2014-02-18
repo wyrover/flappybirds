@@ -4,12 +4,10 @@ Flappy Birds
 Install:
 
 ```
-npm install sugo
-npm install wrapup
-npm install polpetta
+npm install
 ```
 
 Run:
 ```
-./node_modules/.bin/polpetta .
+./run.sh
 ```
