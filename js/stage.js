@@ -36,12 +36,41 @@ bird.position.y = 150;
 stage.addChild(bird);
 
 
+function v(x, y) {
+    return {
+        x:x,
+        y:y,
+
+        add: function(vector) {
+            this.x += vector.x;
+            this.y += vector.y;
+        }
+    };
+}
+
+var gravity = v(0,1);
+
 function animate()
 {
     background.tilePosition.x -= 5;
+
+    accelerate(bird, gravity);
 
     requestAnimFrame(animate);
 
     // render the stage
     renderer.render(stage);
+}
+
+function accelerate(object, acceleration) {
+    if (!object.velocity) {
+        console.log("Creating new vel")
+        object.velocity = v(0,0);
+    }
+    //Update the velocity according to this acceleration
+    object.velocity.add(acceleration);
+    object.position.x += object.velocity.x;
+    object.position.y += object.velocity.y;
+
+    console.log("Pos:" + object.velocity.y);
 }
