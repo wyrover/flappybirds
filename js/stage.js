@@ -64,13 +64,10 @@ function animate()
 
 function accelerate(object, acceleration) {
     if (!object.velocity) {
-        console.log("Creating new vel")
         object.velocity = v(0,0);
     }
     //Update the velocity according to this acceleration
     object.velocity.add(acceleration);
     object.position.x += object.velocity.x;
     object.position.y += object.velocity.y;
-
-    console.log("Pos:" + object.velocity.y);
 }
