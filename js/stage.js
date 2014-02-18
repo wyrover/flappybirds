@@ -2,23 +2,31 @@
 var stage = new PIXI.Stage(0x66FF99);
 
 // create a renderer instance.
-var renderer = PIXI.autoDetectRenderer(768, 896);
+var stageWidth = 768;
+var stageHeight = 896;
+var renderer = PIXI.autoDetectRenderer(stageWidth, stageHeight);
 
 // add the renderer view element to the DOM
 document.body.appendChild(renderer.view);
 
-requestAnimFrame(animate);
-
 
 //Background
-
 var backgroundTexture = PIXI.Texture.fromImage("images/background.png");
-var background = new PIXI.TilingSprite(backgroundTexture, 768, 896)
+var background = new PIXI.TilingSprite(backgroundTexture, stageWidth, stageHeight)
 background.position.x = 0;
 background.position.y = 0;
 background.tilePosition.x = 0;
 background.tilePosition.y = 0;
 stage.addChild(background);
+
+//Ground
+var groundTexture = PIXI.Texture.fromImage("images/ground.png");
+var ground = new PIXI.TilingSprite(groundTexture, stageWidth, 130)
+ground.position.x = 0;
+ground.position.y = stageHeight-130;
+ground.tilePosition.x = 0;
+ground.tilePosition.y = 0;
+stage.addChild(ground);
 
 
 //Bird
@@ -48,11 +56,15 @@ function v(x, y) {
     };
 }
 
+//Game params
 var gravity = v(0,1);
+var scrollSpeed = 5; //Pixels per frame (I think)
+
 
 function animate()
 {
-    background.tilePosition.x -= 5;
+    background.tilePosition.x -= 0.5;
+    ground.tilePosition.x -= scrollSpeed;
 
     accelerate(bird, gravity);
 
@@ -71,3 +83,5 @@ function accelerate(object, acceleration) {
     object.position.x += object.velocity.x;
     object.position.y += object.velocity.y;
 }
+
+requestAnimFrame(animate);
