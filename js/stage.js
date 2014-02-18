@@ -42,7 +42,8 @@ loader.load();
 
 var bird;
 function onAssetsLoaded() {
-    bird = new PIXI.Sprite.fromFrame("bird2.png");
+    var anibird = [PIXI.Texture.fromFrame("bird1.png"), PIXI.Texture.fromFrame("bird2.png"), PIXI.Texture.fromFrame("bird3.png")]
+    bird = new PIXI.MovieClip(anibird)
     // center the sprites anchor point
     bird.anchor.x = 0.5;
     bird.anchor.y = 0.5;
@@ -77,6 +78,7 @@ function accelerate(object) {
     object.position.x += object.velocity.x;
     object.position.y += object.velocity.y;
     object.rotation = 0 + (object.velocity.y/10)
+    object.gotoAndPlay((Math.random() * 4) % 3 )
 }
 
 function checkCollisions(bird) {
