@@ -18,7 +18,7 @@
     },
     "bird3.png":
     {
-        "frame": {"x":183,"y":0,"w":92,"h":64},
+        "frame": {"x":184,"y":0,"w":92,"h":64},
         "rotated": false,
         "trimmed": false,
         "spriteSourceSize": {"x":0,"y":0,"w":92,"h":64},

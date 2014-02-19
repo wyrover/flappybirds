@@ -79,8 +79,8 @@ function accelerate(object) {
     object.velocity.add(object.acceleration);
     object.position.x += object.velocity.x;
     object.position.y += object.velocity.y;
-    object.rotation = 0 + Math.PI/2 * Math.sin(object.velocity.y/100)
-    
+    object.rotation = 0 + Math.PI/2 * Math.sin(object.velocity.y/10)
+
 }
 
 function checkCollisions(bird) {
