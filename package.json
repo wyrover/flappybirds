@@ -8,7 +8,7 @@
     "url": "https://github.com/alexspurling/flappybirds.git"
   },
   "dependencies": {
-    
+    "wrapup":"*"  
   },
   "devDependencies": {
     "polpetta": "*"
