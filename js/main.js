@@ -1,6 +1,6 @@
 module.exports = function(){
 // create an new instance of a pixi stage
-var stage = new PIXI.Stage(0x66FF99);
+var stage = new PIXI.Stage(0x000000);
 var v = require("./vector")
 
 
@@ -35,16 +35,21 @@ var first_pipe_position = stageWidth + 200,
 for (var i = 0; i < NUM_PIPES; i++) {
     bottomPipes.push(new PIXI.Sprite(pipesTexture));
     bottomPipes[i].velocity = v(-scrollSpeed, 0)
-    bottomPipes[i].position = v(first_pipe_position + i*distance_between_pipes, stageHeight - 100 - floorHeight)
-    bottomPipes[i].acceleration = v(0,0)
-}
     
-for (var i = 0; i < NUM_PIPES; i++) {
+    var randomOffset = Math.random() * 500
+    //var topY = -stageHeight - 
+    var topY = randomOffset - stageHeight
+    var bottomY = topY + 1000
+    
+    //stageHeight - 100 - floorHeight +randomHeight
+    bottomPipes[i].position = v(first_pipe_position + i*distance_between_pipes, bottomY)
+    bottomPipes[i].acceleration = v(0,0)
+
     topPipes.push(new PIXI.Sprite(pipesTexture));
     topPipes[i].anchor.y = 1
     topPipes[i].scale.y = -1
     topPipes[i].velocity = v(-scrollSpeed, 0)
-    topPipes[i].position = v(first_pipe_position + i*distance_between_pipes, -600)
+    topPipes[i].position = v(first_pipe_position + i*distance_between_pipes, topY)
     topPipes[i].acceleration = v(0,0)
 }
      
@@ -79,10 +84,11 @@ function create(clone){
     
     bird.anchor.x = 0.5;
     bird.anchor.y = 0.5;
+    bird.scale.x = 0.6;
+    bird.scale.y = 0.6;
     
     
-    
-    bird.position.x = 200;
+    bird.position.x = 60;
     bird.position.y = 150;
     bird.acceleration = gravity;
     if(clone){
@@ -93,14 +99,14 @@ function create(clone){
         
         // adding clone differencies
         bird.velocity = v(0,0)
-        bird.velocity.y = -25
+        bird.velocity.y = -18
         bird.position.y = clone.position.y
         //bird.position.x = 30
     }
     
     bird.onclick = function(){
         if (!bird.isDead) {
-            bird.velocity.y = -20
+            bird.velocity.y = -15
         }
         
         if(!clone || birds.indexOf(bird)==0){
@@ -164,8 +170,6 @@ function animate()
         function remove(bird){
          var idx = birds.indexOf(bird)
             birds.splice(idx, 1)
-        
-            updateScore(-5)
         }
         for(i=0, max = deaths.length; i < max; i++){
             remove(deaths[i])
@@ -192,7 +196,7 @@ function checkCollisions(bird) {
     var maxYPos = floorPosition - (bird.texture.height * 0.5);
     if (bird.position.y > maxYPos) {
         //Stop the bird falling
-        //bird.acceleration = v(0,0);
+        bird.acceleration = v(0,0);
         bird.position.y = maxYPos;
         bird.velocity.x = -scrollSpeed
         deadise(bird)
@@ -267,11 +271,14 @@ function checkDead(currentBird, deaths) {
     }
 }
 
-function deadise(bird) {   
-    bird.blendMode = PIXI.blendModes.MULTIPLY
-    bird.isDead = true
-    bird.stop()
-    checkAndRemoveClick(bird)
+function deadise(bird) {
+    if (!bird.isDead) {
+        updateScore(-2)
+        bird.blendMode = PIXI.blendModes.MULTIPLY
+        bird.isDead = true
+        bird.stop()
+        checkAndRemoveClick(bird)
+    }
 }
 document.addEventListener('keydown', function(event) {
     if(event.keyCode == 32) {

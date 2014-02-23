@@ -7,6 +7,6 @@ module.exports = function accelerate(object) {
     object.velocity.add(object.acceleration);
     object.position.x += object.velocity.x;
     object.position.y += object.velocity.y;
-    //object.rotation = Math.PI/2 * Math.sin(object.velocity.y/100)
+    object.rotation = Math.PI/2 * Math.sin(object.velocity.y/100)
 
 }
