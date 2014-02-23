@@ -36,7 +36,7 @@ for (var i = 0; i < NUM_PIPES; i++) {
     bottomPipes.push(new PIXI.Sprite(pipesTexture));
     bottomPipes[i].velocity = v(-scrollSpeed, 0)
     
-    var randomOffset = Math.random() * 500
+    var randomOffset = Math.random() * 400
     //var topY = -stageHeight - 
     var topY = randomOffset - stageHeight
     var bottomY = topY + 1000
@@ -44,10 +44,12 @@ for (var i = 0; i < NUM_PIPES; i++) {
     //stageHeight - 100 - floorHeight +randomHeight
     bottomPipes[i].position = v(first_pipe_position + i*distance_between_pipes, bottomY)
     bottomPipes[i].acceleration = v(0,0)
+    bottomPipes[i].scale.x = 0.8
 
     topPipes.push(new PIXI.Sprite(pipesTexture));
     topPipes[i].anchor.y = 1
     topPipes[i].scale.y = -1
+    topPipes[i].scale.x = 0.8
     topPipes[i].velocity = v(-scrollSpeed, 0)
     topPipes[i].position = v(first_pipe_position + i*distance_between_pipes, topY)
     topPipes[i].acceleration = v(0,0)
@@ -273,7 +275,7 @@ function checkDead(currentBird, deaths) {
 
 function deadise(bird) {
     if (!bird.isDead) {
-        updateScore(-2)
+        updateScore(-1)
         bird.blendMode = PIXI.blendModes.MULTIPLY
         bird.isDead = true
         bird.stop()
