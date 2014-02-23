@@ -3,10 +3,11 @@ module.exports = function(){
 var stage = new PIXI.Stage(0x66FF99);
 var v = require("./vector")
 
+
 var onclick = [], birds = []
 // create a renderer instance.
 var stageWidth = 768;
-var stageHeight = 896;
+var stageHeight = 800;
 var renderer = PIXI.autoDetectRenderer(stageWidth, stageHeight);
 
 // add the renderer view element to the DOM
@@ -14,19 +15,45 @@ document.body.appendChild(renderer.view);
 
 //Game params
 var gravity = v(0,1);
-var scrollSpeed = 5; //Pixels per frame (I think)
+var backgroundScrollSpeed = 5; //Pixels per frame (I think)
+var scrollSpeed = 3.75;
 var floorHeight = 130;
 var floorPosition = stageHeight - floorHeight;
-
+var NUM_PIPES = 6;
 //Background
-var backgroundTexture = PIXI.Texture.fromImage("images/background.png");
+var backgroundTexture = PIXI.Texture.fromImage("images/background.png")
 
+// Pipes !!!!
+var pipesTexture = PIXI.Texture.fromImage("images/pipe.png")
+var topPipesTexture = PIXI.Texture.fromImage("images/pipe.png")
+var bottomPipes = []
+var topPipes = []
+
+var first_pipe_position = stageWidth + 200,
+    distance_between_pipes = 500
+    
+for (var i = 0; i < NUM_PIPES; i++) {
+    bottomPipes.push(new PIXI.Sprite(pipesTexture));
+    bottomPipes[i].velocity = v(-scrollSpeed, 0)
+    bottomPipes[i].position = v(first_pipe_position + i*distance_between_pipes, stageHeight - 200 - floorHeight)
+    bottomPipes[i].acceleration = v(0,0)
+}
+    
+for (var i = 0; i < NUM_PIPES; i++) {
+    topPipes.push(new PIXI.Sprite(pipesTexture));
+    topPipes[i].anchor.y = 1
+    topPipes[i].scale.y = -1
+    topPipes[i].velocity = v(-scrollSpeed, 0)
+    topPipes[i].position = v(first_pipe_position + i*distance_between_pipes, -500)
+    topPipes[i].acceleration = v(0,0)
+}
+     
 
 var background = new PIXI.TilingSprite(backgroundTexture, stageWidth, stageHeight)
 background.position.x = 0;
-background.position.y = 0;
+background.position.y = 0//stageHeight - 896;
 background.tilePosition.x = 0;
-background.tilePosition.y = 0;
+background.tilePosition.y = stageHeight - 896 - floorHeight;
 stage.addChild(background);
 //Ground
 var groundTexture = PIXI.Texture.fromImage("images/ground.png");
@@ -58,11 +85,16 @@ function create(clone){
     bird.position.y = 150;
     bird.acceleration = gravity;
     if(clone){
+        console.log(clone)
         // adding clone differencies
-        
+        bird.velocity = v(0,0)
+        bird.velocity.y = -25
+        bird.position.y = clone.position.y
+        //bird.position.x = 30
     }
+    
     onclick.push(function(){
-        bird.velocity.y = -20;
+        bird.velocity.y = -20
         
         if(!clone){
             var cloned = create(bird)
@@ -81,19 +113,35 @@ function onAssetsLoaded() {
     birds.push(bird)
     
     stage.addChild(bird);
+    for(i = 0; i < bottomPipes.length; i++){
+      stage.addChild(bottomPipes[i])
+    }
+    for(i = 0; i < topPipes.length; i++){
+      stage.addChild(topPipes[i])
+    }
 }
 
 function animate()
 {
     if (birds.length) {
-        background.tilePosition.x -= 0.5;
-        ground.tilePosition.x -= scrollSpeed;
+        background.tilePosition.x -= backgroundScrollSpeed;
+        ground.tilePosition.x -= backgroundScrollSpeed;
 
         var i, max = birds.length;
         for(i=0; i<max; i++){
             accelerate(birds[i]);
             checkCollisions(birds[i]);
+            checkBottomPipeCollisions(birds[i])
+            checkTopPipeCollisions(birds[i])
         }
+        
+        for(i=0, max = bottomPipes.length; i < max; i++){
+            bottomPipes[i].position.x -= scrollSpeed
+        }
+        for(i=0, max = topPipes.length; i < max; i++){
+            topPipes[i].position.x -= scrollSpeed
+        }
+        resetPipes()
     }
 
     requestAnimFrame(animate);
@@ -101,17 +149,8 @@ function animate()
     // render the stage
     renderer.render(stage);
 }
-
-function accelerate(object) {
-    if (!object.velocity) {
-        object.velocity = v(0,0);
-    }
-    object.velocity.add(object.acceleration);
-    object.position.x += object.velocity.x;
-    object.position.y += object.velocity.y;
-    object.rotation = Math.PI/2 * Math.sin(object.velocity.y/100)
-
-}
+    
+var accelerate = require("./accelerate")
 
 function checkCollisions(bird) {
     var maxYPos = floorPosition - (bird.texture.height * 0.5);
@@ -128,6 +167,51 @@ function click() {
   for(var i = 0, max = onclick.length; i < max; i++){
     onclick[i]()
   }    
+}
+    
+function resetPipes() {
+    for (var i = 0; i < bottomPipes.length; i++) {
+        if (bottomPipes[i].position.x < -200) {
+            bottomPipes[i].position.x = bottomPipes[i].position.x + (NUM_PIPES * distance_between_pipes)
+        }
+    }
+    for (var i = 0; i < topPipes.length; i++) {
+        if (topPipes[i].position.x < -200) {
+            topPipes[i].position.x = topPipes[i].position.x + (NUM_PIPES * distance_between_pipes)
+        }
+    }
+}
+    
+function checkBottomPipeCollisions(currentBird) {
+    for (var i = 0; i < bottomPipes.length; i++) {
+        var currentPipe = bottomPipes[i];
+        var leftOverlap = currentBird.position.x + currentBird.width/2 - currentPipe.position.x;
+        var topOverlap = currentBird.position.y + currentBird.height/2 - currentPipe.position.y;
+        var rightOverlap = currentPipe.position.x + currentPipe.width - (currentBird.position.x - currentBird.width/2);
+        if (leftOverlap > 0 && topOverlap > 0 && rightOverlap > 0) {
+            if (leftOverlap < topOverlap && leftOverlap < rightOverlap) {
+                currentBird.velocity.x = -scrollSpeed
+            }else if (topOverlap < leftOverlap && topOverlap < rightOverlap) {
+                currentBird.velocity.y = -10
+            }
+        }
+    }
+}
+
+function checkTopPipeCollisions(currentBird) {
+    for (var i = 0; i < topPipes.length; i++) {
+        var currentPipe = topPipes[i];
+        var leftOverlap = currentBird.position.x + currentBird.width/2 - currentPipe.position.x;
+        var bottomOverlap = currentBird.position.y - (currentPipe.position.y + currentPipe.height);
+        var rightOverlap = currentPipe.position.x + currentPipe.width - (currentBird.position.x - currentBird.width/2);
+        if (leftOverlap > 0 && bottomOverlap > 0 && rightOverlap > 0) {
+            if (leftOverlap < bottomOverlap && leftOverlap < rightOverlap) {
+                currentBird.velocity.x = -scrollSpeed
+            }else if (bottomOverlap < leftOverlap && bottomOverlap < rightOverlap) {
+                currentBird.velocity.y = 0
+            }
+        }
+    }
 }
 
 document.addEventListener('keydown', function(event) {
