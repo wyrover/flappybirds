@@ -86,7 +86,11 @@ function create(clone){
     bird.position.y = 150;
     bird.acceleration = gravity;
     if(clone){
-        console.log(clone)
+        if(birds.indexOf(clone) == -1){
+            clone = birds.filter(function(b){return !b.isDead})[0]
+            console.log("new spawner" ,clone)
+        }
+        
         // adding clone differencies
         bird.velocity = v(0,0)
         bird.velocity.y = -25
@@ -94,16 +98,19 @@ function create(clone){
         //bird.position.x = 30
     }
     
-    onclick.push(function(){
-        bird.velocity.y = -20
+    bird.onclick = function(){
+        if (!bird.isDead) {
+            bird.velocity.y = -20
+        }
         
-        if(!clone){
+        if(!clone || birds.indexOf(bird)==0){
             var cloned = create(bird)
             birds.push(cloned)
             stage.addChild(cloned)
         }
         
-    })
+    };
+    onclick.push(bird.onclick)
     return bird;
 }
 
@@ -130,7 +137,13 @@ function onAssetsLoaded() {
     stage.addChild(scoreText);
 
 }
-
+    
+function checkAndRemoveClick(bird){
+    var clickHandler = onclick.indexOf(bird.onclick)
+    if(clickHandler !== -1) onclick.splice(clickHandler, 1)
+}
+    
+    
 function animate()
 {
     if (birds.length) {
@@ -147,9 +160,11 @@ function animate()
             checkDead(birds[i], deaths)
         }
         
+        
         function remove(bird){
          var idx = birds.indexOf(bird)
             birds.splice(idx, 1)
+        
             updateScore(-5)
         }
         for(i=0, max = deaths.length; i < max; i++){
@@ -179,7 +194,8 @@ function checkCollisions(bird) {
         //Stop the bird falling
         //bird.acceleration = v(0,0);
         bird.position.y = maxYPos;
-        bird.velocity.y = -Math.abs(bird.velocity.y) * 0.7;
+        bird.velocity.x = -scrollSpeed
+        deadise(bird)
     }
 }
 
@@ -217,8 +233,10 @@ function checkBottomPipeCollisions(currentBird) {
         if (leftOverlap > 0 && topOverlap > 0 && rightOverlap > 0) {
             if (leftOverlap < topOverlap && leftOverlap < rightOverlap) {
                 currentBird.velocity.x = -scrollSpeed
+                deadise(currentBird)
             }else if (topOverlap < leftOverlap && topOverlap < rightOverlap) {
                 currentBird.velocity.y = -10
+                deadise(currentBird)
             }
         }
     }
@@ -234,8 +252,10 @@ function checkTopPipeCollisions(currentBird) {
         if (leftOverlap > 0 && bottomOverlap > 0 && rightOverlap > 0) {
             if (leftOverlap < bottomOverlap && leftOverlap < rightOverlap) {
                 currentBird.velocity.x = -scrollSpeed
+                deadise(currentBird)
             }else if (bottomOverlap < leftOverlap && bottomOverlap < rightOverlap) {
                 currentBird.velocity.y = 0
+                deadise(currentBird)
             }
         }
     }
@@ -247,6 +267,12 @@ function checkDead(currentBird, deaths) {
     }
 }
 
+function deadise(bird) {   
+    bird.blendMode = PIXI.blendModes.MULTIPLY
+    bird.isDead = true
+    bird.stop()
+    checkAndRemoveClick(bird)
+}
 document.addEventListener('keydown', function(event) {
     if(event.keyCode == 32) {
         click();
