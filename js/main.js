@@ -35,7 +35,7 @@ var first_pipe_position = stageWidth + 200,
 for (var i = 0; i < NUM_PIPES; i++) {
     bottomPipes.push(new PIXI.Sprite(pipesTexture));
     bottomPipes[i].velocity = v(-scrollSpeed, 0)
-    bottomPipes[i].position = v(first_pipe_position + i*distance_between_pipes, stageHeight - 200 - floorHeight)
+    bottomPipes[i].position = v(first_pipe_position + i*distance_between_pipes, stageHeight - 100 - floorHeight)
     bottomPipes[i].acceleration = v(0,0)
 }
     
@@ -44,7 +44,7 @@ for (var i = 0; i < NUM_PIPES; i++) {
     topPipes[i].anchor.y = 1
     topPipes[i].scale.y = -1
     topPipes[i].velocity = v(-scrollSpeed, 0)
-    topPipes[i].position = v(first_pipe_position + i*distance_between_pipes, -500)
+    topPipes[i].position = v(first_pipe_position + i*distance_between_pipes, -600)
     topPipes[i].acceleration = v(0,0)
 }
      
@@ -70,6 +70,7 @@ loader = new PIXI.AssetLoader(assetsToLoader);
 loader.onComplete = onAssetsLoaded;
 loader.load();
 
+    
 function create(clone){
     var bird = new PIXI.MovieClip(anibird)
     bird.animationSpeed = 1/5
@@ -105,8 +106,9 @@ function create(clone){
     })
     return bird;
 }
-    
-var anibird;    
+
+var scoreText
+var anibird, score = 0;    
 function onAssetsLoaded() {
     anibird = [PIXI.Texture.fromFrame("bird1.png"), PIXI.Texture.fromFrame("bird2.png"), PIXI.Texture.fromFrame("bird3.png")]
     var bird = create();
@@ -119,6 +121,14 @@ function onAssetsLoaded() {
     for(i = 0; i < topPipes.length; i++){
       stage.addChild(topPipes[i])
     }
+    
+    var style = {font:"40px Tahoma", fill:"whitesmoke"};
+     
+    scoreText = new PIXI.Text("0", style);
+    scoreText.position.y = 100
+    scoreText.position.x = stageWidth / 2    
+    stage.addChild(scoreText);
+
 }
 
 function animate()
@@ -126,13 +136,24 @@ function animate()
     if (birds.length) {
         background.tilePosition.x -= backgroundScrollSpeed;
         ground.tilePosition.x -= backgroundScrollSpeed;
-
+        
+        var deaths = []
         var i, max = birds.length;
         for(i=0; i<max; i++){
             accelerate(birds[i]);
             checkCollisions(birds[i]);
             checkBottomPipeCollisions(birds[i])
             checkTopPipeCollisions(birds[i])
+            checkDead(birds[i], deaths)
+        }
+        
+        function remove(bird){
+         var idx = birds.indexOf(bird)
+            birds.splice(idx, 1)
+            updateScore(-5)
+        }
+        for(i=0, max = deaths.length; i < max; i++){
+            remove(deaths[i])
         }
         
         for(i=0, max = bottomPipes.length; i < max; i++){
@@ -168,11 +189,16 @@ function click() {
     onclick[i]()
   }    
 }
+function updateScore(delta) {
+    score += delta
+    scoreText.setText(score)
+}
     
 function resetPipes() {
     for (var i = 0; i < bottomPipes.length; i++) {
         if (bottomPipes[i].position.x < -200) {
             bottomPipes[i].position.x = bottomPipes[i].position.x + (NUM_PIPES * distance_between_pipes)
+            updateScore(birds.length)
         }
     }
     for (var i = 0; i < topPipes.length; i++) {
@@ -201,8 +227,9 @@ function checkBottomPipeCollisions(currentBird) {
 function checkTopPipeCollisions(currentBird) {
     for (var i = 0; i < topPipes.length; i++) {
         var currentPipe = topPipes[i];
+        var topPipeHeight = -currentPipe.height
         var leftOverlap = currentBird.position.x + currentBird.width/2 - currentPipe.position.x;
-        var bottomOverlap = currentBird.position.y - (currentPipe.position.y + currentPipe.height);
+        var bottomOverlap = (currentPipe.position.y + topPipeHeight) - (currentBird.position.y - currentBird.height/2);
         var rightOverlap = currentPipe.position.x + currentPipe.width - (currentBird.position.x - currentBird.width/2);
         if (leftOverlap > 0 && bottomOverlap > 0 && rightOverlap > 0) {
             if (leftOverlap < bottomOverlap && leftOverlap < rightOverlap) {
@@ -211,6 +238,12 @@ function checkTopPipeCollisions(currentBird) {
                 currentBird.velocity.y = 0
             }
         }
+    }
+}
+    
+function checkDead(currentBird, deaths) {
+    if (currentBird.position.x + currentBird.width /2 < 0) {
+        deaths.push(currentBird)
     }
 }
 
